@@ -1,0 +1,26 @@
+---
+:name: owen
+:score: -1
+:word: medline
+:board:
+- _
+- E
+- D
+- L
+- I
+- _
+- E
+:word_arr:
+- m
+- e
+- d
+- l
+- i
+- "n"
+- e
+:previous_guess:
+- r
+- c
+- f
+- v
+- s

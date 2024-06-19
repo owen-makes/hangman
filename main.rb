@@ -2,8 +2,9 @@ require 'yaml'
 
 class Hangman
   
-  def initialize(name)
-    @name = name
+  def initialize()
+    puts "What's your name?"
+    @name = gets.chomp.to_s
     @score = 0
     @dictionary = []
     self.load_dictionary
@@ -26,34 +27,51 @@ class Hangman
     @word = get_random_word
     @word_arr = @word.split('')
     @board =  Array.new(@word_arr.length, '_')
-    gameplay_loop
+    load_game?
   end
 
   def get_guess
-    puts 'Take a guess!'
-    @guess = 0
-    until @guess.to_s.match(/[a-zA-Z]/) do
-      @guess = gets.chomp.downcase
+    puts "If you would like to save your game, type 'save'.\nOtherwise, just take a guess:"
+
+    loop do
+      @guess = gets.chomp.to_s.downcase
+      if @guess == 'save'
+        save_game
+        exit
+      elsif @guess.match(/^[a-zA-Z]$/)
+        break
+      else
+        puts "Invalid input. Please enter a single letter or type 'save' to save the game:"
+      end
     end
-    @guess.downcase
+    @guess
+  end
+
+  def load_game?
+    puts "Would you like to load a game?"
+    if gets.chomp == 'y'
+      self.load_game
+    else
+      gameplay_loop
+    end
   end
 
   def gameplay_loop
     puts '- - H A N G M A N - -'
-    wrong_guess = []
+    @wrong_guess = []
     @lives = 6
     puts @board.join(' ')
     until @lives == 0 || !@board.include?('_') do
       get_guess
       if @word_arr.include?(@guess)
         update_board(@guess)
-        puts "Previous guesses: #{wrong_guess.join(' - ')}"
+        puts "Previous guesses: #{@wrong_guess.join(' - ')}"
       else
-        wrong_guess << @guess
+        @wrong_guess << @guess
         @lives -= 1
         puts @board.join(' ')
         puts "Wrong guess! #{@lives} remaining lives"
-        puts "Previous guesses: #{wrong_guess.join(' - ')}"
+        puts "Previous guesses: #{@wrong_guess.join(' - ')}"
       end
     end
     if @lives == 0
@@ -82,11 +100,43 @@ class Hangman
   end
 
   def save_game
-    
+    yaml = YAML.dump ({
+      name: @name,
+      score: @score,
+      word: @word,
+      board: @board,
+      word_arr: @word_arr,
+      previous_guess: @wrong_guess,
+    })
+    Dir.mkdir('saves') unless Dir.exist?('saves')
+    filename = "saves/#{@name}.yml"
+    File.open(filename, 'w') do |file|
+      file.puts yaml
+    end
   end
+
+  def load_game()
+    Dir.chdir 'saves'
+    saves = Dir.entries('.').each_with_index {|file,idx| puts "#{idx}. #{file}"}
+    
+    puts 'Choose a save using the number'
+    string = saves[gets.chomp.to_i]
+    
+    puts "Loading file: #{string}"
+    data = YAML.load File.read(string)
+    @name = data[:name]
+    @score = data[:score]
+    @word = data[:word]
+    @word_arr = data[:word_arr]
+    @board = data[:board]
+    @wrong_guess = data[:previous_guess]
+    Dir.chdir '..'
+    gameplay_loop
+  end
+
 end
 
 
 
-new_game = Hangman.new('owen')
+new_game = Hangman.new()
 new_game.play

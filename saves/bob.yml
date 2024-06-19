@@ -1,0 +1,28 @@
+---
+:name: bob
+:score: -1
+:word: measured
+:board:
+- M
+- E
+- A
+- S
+- U
+- R
+- E
+- _
+:word_arr:
+- m
+- e
+- a
+- s
+- u
+- r
+- e
+- d
+:previous_guess:
+- p
+- "n"
+- l
+- i
+- o
